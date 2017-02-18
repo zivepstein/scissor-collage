@@ -15,14 +15,6 @@ a {
     text-decoration: none;
 }
 
-
-.nav .navbar-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
 a:hover {
     text-decoration: underline;
 }
@@ -61,7 +53,7 @@ a:hover {
     background-color: #ddd;
     padding: 5px 9px;
     display: inline-block;
-    color: #666;
+    color: #FF6253;
     font-weight: normal;
     border-radius: 2px;
     cursor: pointer;
@@ -380,4 +372,18 @@ a:hover {
     {
         margin-bottom: 5px;
     }
+}
+
+.navbar-nav li {
+ line-height: 105px;
+ font-size: 110%;
+
+}
+.control-wrapper{
+ line-height: 50px;
+
+}
+
+.btn-default {
+    background-color: #DFDFDF;
 }
