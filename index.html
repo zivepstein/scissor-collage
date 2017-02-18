@@ -39,12 +39,20 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-       <img class="img-responsive" src="img/logo.png" style="height:100px; padding-right:50px;">
+       <img class="img-responsive" src="img/logo.png" style="height:100px;">
 
     </div>
   <ul class="nav navbar-nav">
-        <li>Upload Photo</li>
-        <li>About</li>
+        <li> <form class="navbar-form navbar-left">
+        <div class="form-group">
+         
+          
+           <div label = "fileInput"><input class ="inputfile" type="file" name="datafile" size="10"></div>
+
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+        <div style= "float:left" label = "textInput"><input type="text" class="form-control" placeholder="Keyword"></div>
+      </form></li>
         </ul>
     
             <div class="navbar-right" id="controls">
@@ -52,11 +60,6 @@
                     <label class="control-label" for="blur-number">blur</label>
                     <input class="control-input control-number number" id="blur-number" type="number" min="0" max="99" value="50" maxlength="2" />
                     <input class="control-input control-slider slider" id="blur-slider" type="range" min="0" max="99" value="50" step="1" maxlength="2" />
-                </div>
-                <div class="control-wrapper">
-                    <label class="control-label" for="accuracy-number">accuracy</label>
-                    <input class="control-input control-number number" id="accuracy-number" type="number" min="0" max="99" value="50" maxlength="2" />
-                    <input class="control-input control-slider slider" id="accuracy-slider" type="range" min="0" max="99" value="50" step="1" maxlength="2" />
                 </div>
                 <div class="control-wrapper">
                     <label class="control-label" for="vertex-count">point count</label>
