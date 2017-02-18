@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[113]:
+# In[1]:
 
 from PIL import Image
 from sklearn.preprocessing import normalize

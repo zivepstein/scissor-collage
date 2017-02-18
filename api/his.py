@@ -30,6 +30,6 @@ for d in range(imsrc.shape[2]):
     imres[:,:,d] = im3.reshape((imsrc.shape[0],imsrc.shape[1] ))
 
 try:
-    imsave("histnormresult.jpg", imres)
+    imsave("histnormresult2.jpg", imres)
 except:
     imsave("histnormresult.jpg", imres.reshape((imsrc.shape[0],imsrc.shape[1] )))
