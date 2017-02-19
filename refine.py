@@ -27,8 +27,6 @@ def test():
 
     source = misc.imread("source.jpg")
     target = misc.imread("target.jpg")
-    os.system('node triangulate.js source.jpg 1')
-    os.system('node triangulate.js target.jpg 2')
     with open('json-out/1.json') as source_file:
         with open('json-out/2.json') as target_file:
             source_data = json.load(source_file)
@@ -38,6 +36,8 @@ def test():
             target_clusters = cluster_color(target, NUM_COLORS)
             target_clusters.sort(key=lambda t: colorsys.rgb_to_hsv(*t))
             pairs = pair_colors(source_clusters, target_clusters)
+
+            source_data, target_data = rescale(source_data, target_data)
 
             source_triangulation, source_bins = recolor_triangulation(source_data, source_clusters)
             source_triangulation, source_bins = balance_bins(source_bins, source_data, source_clusters)
@@ -49,8 +49,13 @@ def test():
                 t['fill'] = rgb_tup_to_str(target_clusters[pairs[t['label']]-NUM_COLORS])
 
             source_triangulation.sort(key=lambda t: colorsys.rgb_to_hsv(*rgb_str_to_tup(t['fill'])))
+            target_triangulation.sort(key=lambda t: colorsys.rgb_to_hsv(*rgb_str_to_tup(t['fill'])), reverse=True)
 
             areas = [sum(area for area, _ in b) for b in target_bins]
+            goal_area = sum(areas)/len(target_bins)
+            print [(a-goal_area)/a for a in areas]
+            areas2 = [sum(area for area, _ in b) for b in source_bins]
+            print [a-goal_area for a in areas2]
             spectrum = [{'area': a, 'fill': rgb_tup_to_str(target_clusters[i])} for i, a in enumerate(areas)]
 
             data = {
@@ -61,6 +66,27 @@ def test():
 
             with open('json-out/test.json', 'w') as outfile:
                 json.dump(data, outfile)
+
+
+def rescale(tri1, tri2):
+    area1 = sum(poly_area(*zip(*tri_to_tups(t))) for t in tri1)
+    area2 = sum(poly_area(*zip(*tri_to_tups(t))) for t in tri2)
+    while abs(area1-AREA) > 10*EPSILON:
+        for t in tri1:
+            for p in ['a','b','c']:
+                for x in ['x','y']:
+                    t[p][x] *= 1 + 0.01 * (2*(AREA-area1 > 0)-1)
+        area1 = sum(poly_area(*zip(*tri_to_tups(t))) for t in tri1)
+
+    while abs(area2-AREA) > EPSILON:
+        for t in tri2:
+            for p in ['a','b','c']:
+                for x in ['x','y']:
+                    t[p][x] *= 1 + 0.01 * (2*(AREA-area2 > 0)-1)
+        area2 = sum(poly_area(*zip(*tri_to_tups(t))) for t in tri2)
+
+    return tri1, tri2
+
 
 
 def balance_bins(bins, triangulation, clusters):
@@ -121,6 +147,7 @@ def relabel(tri_area, tri, bins, goal_area, triangulation, clusters):
                 label = i
 
     triangulation[tri]['fill'] = rgb_tup_to_str(clusters[label])
+    triangulation[tri]['label'] = label
     bisect.insort_right(bins[label], (tri_area, tri))
 
     return triangulation, bins

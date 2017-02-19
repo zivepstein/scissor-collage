@@ -77,12 +77,15 @@ $(function() {
                                         stackPt.x+UNIT_WIDTH, stackPt.y+height,
                                         stackPt.x, stackPt.y+height]);
                 slice.fill = d['fill'];
+                slice.opacity = 0.2;
                 stackPt.y += height;
                 two.add(slice);
                 two.update();
             });
+            stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
             $.each(data['source-triangles'], function(i, t) {
-                var tri = makePoly([t.a.x, t.a.y, t.b.x, t.b.y, t.c.x, t.c.y]);
+                var TRANSLATION = 100;
+                var tri = makePoly([t.a.x + TRANSLATION, t.a.y, t.b.x + TRANSLATION, t.b.y, t.c.x + TRANSLATION, t.c.y]);
                 tri.fill = t.fill;
                 tri = permuteTriVertices(tri);
                 trisA.push(tri);
@@ -90,7 +93,8 @@ $(function() {
                 two.update();
             });
             $.each(data['target-triangles'], function(i, t) {
-                var tri = makePoly([t.a.x, t.a.y, t.b.x, t.b.y, t.c.x, t.c.y]);
+                var TRANSLATION = 1100;
+                var tri = makePoly([t.a.x + TRANSLATION, t.a.y, t.b.x + TRANSLATION, t.b.y, t.c.x + TRANSLATION, t.c.y]);
                 tri.fill = t.fill;
                 tri = permuteTriVertices(tri);
                 trisB.push(tri);
@@ -98,7 +102,7 @@ $(function() {
                 two.update();
             });
 
-            // two.bind('update', pause(ANIMATION_TIME, constructStack(0))).play();
+            two.bind('update', pause(ANIMATION_TIME, constructStack(0))).play();
         });
     }
 
@@ -142,25 +146,18 @@ $(function() {
 
             two.bind('update', straightenTri(currTri, ANIMATION_TIME, function() {
                 var box = PolyK.GetAABB(toPolyK(currTri));
-                console.log((two.width-box.width)/2-box.x);
                 var longestSide = currTri.vertices[0].distanceTo(currTri.vertices[1]);
                 two.bind('update', translate(currTri, ANIMATION_TIME, (two.width-box.width)/2-box.x, two.height-box.height-PADDING-box.y, function() {
                     two.bind('update', triToRect(currTri, function () {
                         two.bind('update', normalizeRect(currTri, UNIT_WIDTH, function() {
                             var box = PolyK.GetAABB(toPolyK(currTri));
                             two.bind('update', translate(currTri, ANIMATION_TIME, stackPt.x-box.x, stackPt.y-box.y, function(){
+                                stackPt.y += box.height;
                                 if(index < trisA.length-1)
-                                {
-                                    stackPt.y += box.height;
                                     constructStack(index+1)();
-                                }
                                 else
                                 {
                                     two.bind('update', pause(ANIMATION_TIME, function () {
-                                        var sliceHeight = area / UNIT_WIDTH;
-                                        var stackY = PolyK.GetAABB(toPolyK(trisA[0])).y
-                                        var stackX = PolyK.GetAABB(toPolyK(trisA[0])).x
-                                        var currWidth = 0;
                                         for (var i = 0; i < trisB.length; i++)
                                         {
                                             var currTri = trisB[i];
