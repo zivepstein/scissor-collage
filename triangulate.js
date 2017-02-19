@@ -2,13 +2,13 @@ var fs = require('fs');
 var triangulate = require('triangulate-image');
 
 var params = {
-        accuracy: 1,
+        accuracy: 0.1,
         blur: 4,
         fill: true,
         stroke: true,
         strokeWidth: 0,
         lineJoin: 'miter',
-        vertexCount: 200,
+        vertexCount: 2,
         threshold: 50,
         gradients: false
 };

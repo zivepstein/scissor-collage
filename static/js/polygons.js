@@ -1,4 +1,4 @@
-    // starting vertex marker
+// starting vertex marker
 var DOT_COLOR = '#FCEBB6';
 var DOT_OPACITY = 0.6;
 var dot;
@@ -12,7 +12,9 @@ var POLY_HALF_OPACITY = 0.6;
 var POLY_GHOST_OPACITY = 0.3;
 var ALPHA = 0.01; // for iteratively calculating target area
 
-var ANIMATION_TIME = 1;
+var ANIMATION_TIME = 20;
+var SPEEDUP = 0.7;
+var SLOWDOWN = 1.4;
 
 var PADDING = 50;
 
@@ -45,10 +47,9 @@ $(function() {
     var area;
 
     var polyA ;
-
+    var barcode = [];
+    var slices = [];
     var polyB;
-
-    var polyCurr;
 
     var trisA = [];
     var trisB;
@@ -78,6 +79,7 @@ $(function() {
                                         stackPt.x, stackPt.y+height]);
                 slice.fill = d['fill'];
                 slice.opacity = 0.2;
+                barcode.push(slice);
                 stackPt.y += height;
                 two.add(slice);
                 two.update();
@@ -96,6 +98,7 @@ $(function() {
                 var TRANSLATION = 1100;
                 var tri = makePoly([t.a.x + TRANSLATION, t.a.y, t.b.x + TRANSLATION, t.b.y, t.c.x + TRANSLATION, t.c.y]);
                 tri.fill = t.fill;
+                tri.opacity = 0;
                 tri = permuteTriVertices(tri);
                 trisB.push(tri);
                 two.add(tri);
@@ -108,8 +111,8 @@ $(function() {
 
     function reset(e)
     {
-        two.width = $(canvas).width(),
-        two.height = $(window).height()-150
+        two.width = $(canvas).width();
+        two.height = $(window).height()-200;
 
         MAX_H = two.height/2;
         MAX_W = two.width/3;
@@ -123,18 +126,6 @@ $(function() {
 
         trisA = [];
         trisB = [];
-        slices = [];
-
-        polyA = two.makePath(0,0).noStroke();
-        polyA.fill = POLY_A_COLOR;
-        polyA.opacity = POLY_HALF_OPACITY;
-
-        polyB = two.makePath(0,0).noStroke();
-        polyB.fill = POLY_B_COLOR;
-        polyB.opacity = POLY_HALF_OPACITY;
-
-        polyCurr = polyA;
-        
 
         two.update();
     }
@@ -154,7 +145,10 @@ $(function() {
                             two.bind('update', translate(currTri, ANIMATION_TIME, stackPt.x-box.x, stackPt.y-box.y, function(){
                                 stackPt.y += box.height;
                                 if(index < trisA.length-1)
+                                {
+                                    ANIMATION_TIME = Math.round(SPEEDUP*ANIMATION_TIME);
                                     constructStack(index+1)();
+                                }
                                 else
                                 {
                                     two.bind('update', pause(ANIMATION_TIME, function () {
@@ -162,15 +156,19 @@ $(function() {
                                         {
                                             var currTri = trisB[i];
                                             var sliceArea = PolyK.GetArea(toPolyK(currTri));
-                                            var sliceWidth = sliceArea * UNIT_WIDTH / area;
-                                            var slice = makePoly([stackX+UNIT_WIDTH-currWidth-sliceWidth, stackY,
-                                                stackX+UNIT_WIDTH-currWidth, stackY,
-                                                stackX+UNIT_WIDTH-currWidth, stackY+sliceHeight,
-                                                stackX+UNIT_WIDTH-currWidth-sliceWidth, stackY+sliceHeight]);
-                                            slice.fill = POLY_A_COLOR;
+                                            var height = Math.abs(sliceArea / UNIT_WIDTH);
+                                            var slice = makePoly([stackPt.x, stackPt.y-height,
+                                                                    stackPt.x+UNIT_WIDTH, stackPt.y-height,
+                                                                    stackPt.x+UNIT_WIDTH, stackPt.y,
+                                                                    stackPt.x, stackPt.y]);
+                                            stackPt.y -= height;
+                                            slice.fill = trisB[i].fill;
                                             slices.push(slice);
                                             two.add(slice);
-                                            currWidth += sliceWidth;
+                                        }
+                                        for (var i = 0; i < barcode.length; i++)
+                                        {
+                                            two.remove(barcode[i]);
                                         }
                                         for (var i = 0; i < trisA.length; i++)
                                         {
@@ -208,6 +206,7 @@ $(function() {
                             two.bind('update', translate(currTri, ANIMATION_TIME, terminalX-triBox.x, terminalY-triBox.y, function() {
                                 if(index < trisB.length-1)
                                 {
+                                    ANIMATION_TIME = Math.round(SLOWDOWN*ANIMATION_TIME);
                                     deconstructStack(index+1)();
                                 }
                             })).play();
@@ -329,53 +328,6 @@ $(function() {
 
     }
 
-    function triangulate()
-    {
-        var polyKA = toPolyK(polyA);
-        var polyKB = toPolyK(polyB);
-
-        var trA = PolyK.Triangulate(polyKA);
-        for(var i = 0; i < trA.length; i+=3)
-        {
-            var triangle = [polyKA[trA[i]*2], polyKA[trA[i]*2+1],
-                polyKA[trA[i+1]*2], polyKA[trA[i+1]*2+1],
-                polyKA[trA[i+2]*2], polyKA[trA[i+2]*2+1]];
-            var t = makePoly(triangle);
-            t.fill = POLY_A_COLOR;
-            t = permuteTriVertices(t);
-            trisA.push(t);
-            
-            var tGhost = makePoly(triangle);
-            tGhost.fill = POLY_A_COLOR;
-            tGhost.opacity = POLY_GHOST_OPACITY;
-
-            two.add(tGhost, t);
-
-            UNIT_WIDTH = Math.min(UNIT_WIDTH, 2*t.vertices[0].distanceTo(t.vertices[1])-1);
-        }
-
-        two.remove(polyA);
-
-
-        var trB = PolyK.Triangulate(polyKB);
-        for(var i = 0; i < trB.length; i+=3)
-        {
-            var triangle = [polyKB[trB[i]*2], polyKB[trB[i]*2+1],
-                polyKB[trB[i+1]*2], polyKB[trB[i+1]*2+1],
-                polyKB[trB[i+2]*2], polyKB[trB[i+2]*2+1]];
-            var t = makePoly(triangle);
-            t = permuteTriVertices(t);
-            trisB.push(t);
-
-            var tGhost = makePoly(triangle);
-            tGhost.fill = POLY_B_COLOR;
-            tGhost.opacity = POLY_GHOST_OPACITY;
-
-            two.add(tGhost);
-        }
-
-        two.remove(polyB);
-    }
 
     function makePoly(p) {
         points = [];
@@ -384,8 +336,11 @@ $(function() {
             var y = p[i + 1];
             points.push(new Two.Anchor(x, y));
         }
-
         var path = new Two.Path(points, true);
+
+        if(PolyK.GetArea(toPolyK(path)) < 0)
+            path.vertices.reverse();
+
         path.noStroke();
 
         return path;
@@ -471,8 +426,7 @@ $(function() {
         return rotate(leftTri, ANIMATION_TIME, Math.PI, false, leftX, Y, function() {
             two.bind('update', rotate(rightTri, ANIMATION_TIME,Math.PI, true, rightX, Y, function() {
                 two.remove(trap, rightTri, leftTri);
-                t.fill = r.fill;
-                two.add(t);
+                t.opacity = 1;
                 if(callback) callback();
             })).play();
         });

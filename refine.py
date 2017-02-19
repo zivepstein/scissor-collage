@@ -27,6 +27,8 @@ def test():
 
     source = misc.imread("source.jpg")
     target = misc.imread("target.jpg")
+    os.system('node triangulate.js source.jpg 1')
+    os.system('node triangulate.js target.jpg 2')
     with open('json-out/1.json') as source_file:
         with open('json-out/2.json') as target_file:
             source_data = json.load(source_file)
