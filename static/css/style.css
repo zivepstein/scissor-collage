@@ -11,8 +11,7 @@ body {
 }
 
 a {
-    color: #06f;
-    text-decoration: none;
+    color: #F71423;
 }
 
 a:hover {
@@ -399,7 +398,7 @@ form li {
 .navbar-nav li{
  line-height: 15px;
  margin-top: 40px;
- margin-right: 50px;
+ margin-right: 20px;
 }
 
 .btn-primary {
@@ -419,4 +418,8 @@ form li {
 	width: 600px;
 	max-width: 600px;
 	padding-bottom: 20px;
+}
+
+#word{
+	margin-right: 20px;
 }
