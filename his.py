@@ -1,8 +1,8 @@
 from scipy.misc import imsave, imread
 import numpy as np
 
-imsrc = imread("source.jpg")
-imtint = imread("target.jpg")
+imsrc = imread("image-processing/data/source.jpg")
+imtint = imread("image-processing/data/target.jpg")
 
 nbr_bins=255
 if len(imsrc.shape) < 3:
@@ -11,6 +11,7 @@ if len(imsrc.shape) < 3:
 
 imres = imsrc.copy()
 for d in range(imsrc.shape[2]):
+    print d
     imhist,bins = np.histogram(imsrc[:,:,d].flatten(),nbr_bins,normed=True)
     tinthist,bins = np.histogram(imtint[:,:,d].flatten(),nbr_bins,normed=True)
 
