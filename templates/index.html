@@ -23,8 +23,9 @@
 </head>
 
 <body>
-  <nav class="nav navbar-nav">
+  <nav class="navbar navbar-default">
     <div class="container-fluid">
+<<<<<<< HEAD
       <img class="img-responsive" src="static/img/logo.png" style="height:100px;">
       <ul class="nav navbar-nav">
         <li> <form class="navbar-form navbar-left">
@@ -50,13 +51,40 @@
           <input class="control-input control-number number" id="stroke-width-number" type="number" min="0" max="99" value="1" maxlength="2" />
         </li>
       </ul>
+=======
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <img class="img-responsive" src="static/img/logo.png" style="height:100px; padding-right:50px;">
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <form id="data">
+            <li>
+              <input type="text" name="name" />
+            </li>
+            <li>
+              <input name="image" type="file" />
+            </li>
+            <li>
+              <input type="submit" />
+            </li>
+          </form>
+        </ul>
+      </div>
+>>>>>>> 0f018cc71e5c457da9fe13a8b701c0c585bdd63e
     </div>
   </nav>
-
 
 
   <div id="canvas"></div>
   </div>
 </body>
+
+<script type="text/javascript" src="static/js/submit.js"></script>
 
 </html>
