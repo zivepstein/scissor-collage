@@ -388,9 +388,35 @@ form li {
 
 
 .btn-default {
-    background-color: #DFDFDF;
+    background-color: #E4E4E4;
 }
 
-.navbar-nav li {
- line-height: 100px;
+.form-group{
+	padding-left: 50px;
+}
+
+
+.navbar-nav li{
+ line-height: 15px;
+ margin-top: 40px;
+ margin-right: 50px;
+}
+
+.btn-primary {
+    color: black;
+    background-color: #E4E4E4;
+    border-color: #E4E4E4;
+}
+
+.btn-primary:hover {
+    color: black;
+    background-color: #E8A0A2;
+    border-color: #E8A0A2;
+}
+
+.desc{
+	font-size: 15px;
+	width: 600px;
+	max-width: 600px;
+	padding-bottom: 20px;
 }
