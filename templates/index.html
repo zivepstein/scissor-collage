@@ -23,36 +23,40 @@
 </head>
 
 <body>
-  <nav class="nav navbar-nav">
+  <nav class="navbar navbar-default">
     <div class="container-fluid">
-      <img class="img-responsive" src="static/img/logo.png" style="height:100px; padding-right:50px;">
-      <ul class="nav navbar-nav">
-        <li>Upload Photo</li>
-        <li>About</li>
-        <li class="control-wrapper">
-          <label class="control-label" for="blur-number">blur</label>
-          <input class="control-input control-number number" id="blur-number" type="number" min="0" max="99" value="50" maxlength="2" />
-        </li>
-        <li class="control-wrapper">
-          <label class="control-label" for="accuracy-number">accuracy</label>
-          <input class="control-input control-number number" id="accuracy-number" type="number" min="0" max="99" value="50" maxlength="2" />
-        </li>
-        <li class="control-wrapper">
-          <label class="control-label" for="vertex-count">point count</label>
-          <input class="control-input control-number number" id="vertex-count-number" type="number" min="0" max="99" value="50" maxlength="2" />
-        </li>
-        <li class="control-wrapper">
-          <label class="control-label" for="stroke-width">stroke width</label>
-          <input class="control-input control-number number" id="stroke-width-number" type="number" min="0" max="99" value="1" maxlength="2" />
-        </li>
-      </ul>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <img class="img-responsive" src="static/img/logo.png" style="height:100px; padding-right:50px;">
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <form id="data">
+            <li>
+              <input type="text" name="name" />
+            </li>
+            <li>
+              <input name="image" type="file" />
+            </li>
+            <li>
+              <input type="submit" />
+            </li>
+          </form>
+        </ul>
+      </div>
     </div>
   </nav>
-
 
 
   <div id="canvas"></div>
   </div>
 </body>
+
+<script type="text/javascript" src="static/js/submit.js"></script>
 
 </html>
