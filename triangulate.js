@@ -8,7 +8,7 @@ var params = {
         stroke: true,
         strokeWidth: 0,
         lineJoin: 'miter',
-        vertexCount: 2,
+        vertexCount: 200,
         threshold: 50,
         gradients: false
 };
