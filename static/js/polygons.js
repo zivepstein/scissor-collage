@@ -12,7 +12,7 @@ var POLY_HALF_OPACITY = 0.6;
 var POLY_GHOST_OPACITY = 0.3;
 var ALPHA = 0.01; // for iteratively calculating target area
 
-var ANIMATION_TIME = 20;
+var ANIMATION_TIME = 10;
 
 var PADDING = 50;
 
@@ -32,7 +32,6 @@ $(function() {
     var MAX_W;
     var UNIT_WIDTH;
 
-    var mouse;
 
     var boxA;
     var boxB;
@@ -51,7 +50,7 @@ $(function() {
 
     var polyCurr;
 
-    var trisA;
+    var trisA = [];
     var trisB;
 
     var terminalTheta;
@@ -62,22 +61,35 @@ $(function() {
     var offset;
 
     reset();
+    renderImage();
+
+    function renderImage()
+    {
+        $.ajax({
+            url: '/upload',
+            dataType: 'json'
+        }).done(function (data) {
+            $.each(data, function(i, t) {
+                var tri = makePoly([t.a.x, t.a.y, t.b.x, t.b.y, t.c.x, t.c.y]);
+                tri.fill = t.fill;
+                tri = permuteTriVertices(tri);
+                trisA.push(tri);
+                two.add(tri);
+                two.update();
+            });
+            stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
+            two.bind('update', pause(ANIMATION_TIME, constructStack(0))).play();
+        });
+    }
 
     function reset(e)
     {
-        $("#replay").prop('disabled', true);
-
         two.width = $(canvas).width(),
         two.height = $(window).height()
 
         MAX_H = two.height/2;
         MAX_W = two.width/3;
         UNIT_WIDTH = MAX_W - 3*PADDING;
-
-        mouse = new Two.Anchor(two.width/2, two.height/2);
-
-        two.unbind('update').pause();
-        two.clear();
 
         $canvas = $("svg");
         $canvas.addClass('canvas');
@@ -98,6 +110,7 @@ $(function() {
         polyB.opacity = POLY_HALF_OPACITY;
 
         polyCurr = polyA;
+        
 
         two.update();
     }
@@ -109,6 +122,7 @@ $(function() {
 
             two.bind('update', straightenTri(currTri, ANIMATION_TIME, function() {
                 var box = PolyK.GetAABB(toPolyK(currTri));
+                console.log((two.width-box.width)/2-box.x);
                 var longestSide = currTri.vertices[0].distanceTo(currTri.vertices[1]);
                 two.bind('update', translate(currTri, ANIMATION_TIME, (two.width-box.width)/2-box.x, two.height-box.height-PADDING-box.y, function() {
                     two.bind('update', triToRect(currTri, function () {
@@ -354,7 +368,6 @@ $(function() {
 
             UNIT_WIDTH = Math.min(UNIT_WIDTH, 2*t.vertices[0].distanceTo(t.vertices[1])-1);
         }
-        stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
 
         two.remove(polyA);
 
@@ -388,7 +401,7 @@ $(function() {
         }
 
         var path = new Two.Path(points, true);
-        path.stroke = 'white';
+        path.noStroke();
 
         return path;
 

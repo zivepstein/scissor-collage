@@ -1,7 +1,11 @@
-import os
+import os, json, colorsys
+import networkx as nx
 from flask import Flask, request, redirect, url_for, jsonify, send_from_directory, render_template
+from scipy.spatial import distance
+from scipy import misc
 from werkzeug.utils import secure_filename
 from apiclient.discovery import build
+from image_processing.color_cluster import cluster_color
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
@@ -19,6 +23,9 @@ def index():
 
 @app.route('/upload/', methods=['GET', 'POST'])
 def upload():
+    source = misc.imread("1.jpg")
+    target = misc.imread("2.jpg")
+    # return send_from_directory('json-out', 'data.json', as_attachment=False)
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -34,7 +41,14 @@ def upload():
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             os.system('node triangulate.js {}'.format(os.path.join(app.config['UPLOAD_FOLDER'], filename)))
+            with open('json-out/data.json') as data_file:
+                data = json.load(data_file)
+                for d in data:
+                    d['fill'] = rgb_tup_to_str(closest_color(rgb_str_to_tup(d['fill'])))
+                sort(data, key=lambda d: colorsys.rgb_to_hsv(*rgb_str_to_tup(d['fill']))[0])
+
             return send_from_directory('json-out', 'data.json', as_attachment=False)
+
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -44,6 +58,37 @@ def upload():
          <input type=submit value=Upload>
     </form>
     '''
+
+def rgb_str_to_tup(rgb):
+    rgb_split = rgb.split(', ')[:-1]
+    rgb[0] = rgb[0][5:]
+    return rgb
+
+def rgb_tup_to_str(rgb):
+    return "rgba({}, 1)".format(', '.join(rgb))
+
+def closest_color(color1, colors):
+    min_dist = float('inf')
+    best = None
+    for color2 in colors:
+        d = distance.euclidiean(color1, color2)
+        if d < min_dist:
+            min_dist = d
+            best = color2
+    return color2
+
+
+def pair_colors(colors1, colors2):
+    G = nx.Graph()
+    G.add_nodes_from(range(len(colors1)))
+    G.add_nodes_from([n + len(colors1) for n in range(len(colors2))])
+    for i, a in enumerate(colors1):
+        for j, b in enumerate(colors2):
+            G.add_edge(i, len(colors1)+j, weight=1000-distance.euclidean(a,b))
+    print(G[0])
+    return nx.max_weight_matching(G)
+
+
 
 
 # service = build('customsearch', 'v1', developerKey='AIzaSyBl3oaBTl3QC0hhkJrjKEV9KuGXne0t1Q4')
