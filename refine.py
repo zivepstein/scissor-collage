@@ -16,35 +16,34 @@ NUM_COLORS = 5
 AREA = 50000
 
 def go(name, kw):
-    source = Image.open("uploads/{}.jpg".format(name))
-    source_area = source.size[0] * source.size[1]
-    alpha = math.sqrt(AREA/source_area)
-    source = source.resize((int(alpha*source.size[0]), int(alpha*source.size[1])), Image.BILINEAR)
-    source.save("uploads/{}.jpg".format(name))
+    target = Image.open("static/uploads/{}.jpg".format(name))
+    target_area = target.size[0] * target.size[1]
+    alpha = math.sqrt(AREA/target_area)
+    target = target.resize((int(alpha*target.size[0]), int(alpha*target.size[1])), Image.BILINEAR)
+    target.save("static/uploads/{}.jpg".format(name))
 
     service = build('customsearch', 'v1', developerKey='AIzaSyBl3oaBTl3QC0hhkJrjKEV9KuGXne0t1Q4')
     req = service.cse().list(q=kw,
                                  searchType='image',
-                                 imgDominantColor=find_closest_color(source),
+                                 imgDominantColor=find_closest_color(target),
                                  imgSize='medium',
                                  cx='010344681634201659024:28tylyxabkm')
     response = req.execute()
-    for r in response['items']:
-        url = r['link']
-        file = cStringIO.StringIO(urllib.urlopen(url).read())
-        target = Image.open(file)
+    url = response['items'][0]['link']
+    file = cStringIO.StringIO(urllib.urlopen(url).read())
+    source = Image.open(file)
 
-    target_area = target.size[0] * target.size[1]
-    alpha = math.sqrt(AREA/target_area)
-    target = target.resize((int(alpha*target.size[0]), int(alpha*target.size[1])), Image.BILINEAR)
-    target.save("uploads/{}-target.jpg".format(name))
+    source_area = source.size[0] * source.size[1]
+    alpha = math.sqrt(AREA/source_area)
+    source = source.resize((int(alpha*source.size[0]), int(alpha*source.size[1])), Image.BILINEAR)
+    source.save("static/uploads/{}-source.jpg".format(name))
 
-    source = misc.imread("uploads/{}.jpg".format(name))
-    target = misc.imread("uploads/{}-target.jpg".format(name))
-    os.system('node triangulate.js uploads/{}.jpg {}-1 '.format(name, name))
-    os.system('node triangulate.js uploads/{}-target.jpg {}-2'.format(name, name))
-    with open('json-out/{}-1.json'.format(name)) as source_file:
-        with open('json-out/{}-2.json'.format(name)) as target_file:
+    target = misc.imread("static/uploads/{}.jpg".format(name))
+    source = misc.imread("static/uploads/{}-source.jpg".format(name))
+    os.system('node triangulate.js static/uploads/{}.jpg {}-1 '.format(name, name))
+    os.system('node triangulate.js static/uploads/{}-source.jpg {}-2'.format(name, name))
+    with open('json-out/{}-1.json'.format(name)) as target_file:
+        with open('json-out/{}-2.json'.format(name)) as source_file:
             source_data = json.load(source_file)
             source_clusters = cluster_color(source, NUM_COLORS)
             source_clusters.sort(key=lambda t: colorsys.rgb_to_hsv(*t))

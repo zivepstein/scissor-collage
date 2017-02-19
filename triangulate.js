@@ -3,12 +3,12 @@ var triangulate = require('triangulate-image');
 
 var params = {
         accuracy: 1,
-        blur: 2,
+        blur: 4,
         fill: true,
         stroke: true,
         strokeWidth: 0,
         lineJoin: 'miter',
-        vertexCount: 50,
+        vertexCount: 100,
         threshold: 50,
         gradients: false
 };

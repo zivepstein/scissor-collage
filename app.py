@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from image_processing.color_cluster import cluster_color
 import refine, time
 
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)

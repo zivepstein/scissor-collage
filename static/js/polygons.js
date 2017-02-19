@@ -82,6 +82,12 @@ $(function() {
             processData: false
         }).done(function (n) {
             name = n;
+            $('<img style="position:absolute; left:20px; bottom:20px;" src="static/uploads/'+ name +'-source.jpg">').load(function() {
+              $(this).appendTo(canvas);
+            });
+            $('<img style="position:absolute; right:20px; bottom:20px;" src="static/uploads/'+ name +'.jpg">').load(function() {
+              $(this).appendTo(canvas);
+            });
             setTimeout(renderImage, 5000);
         });
 
