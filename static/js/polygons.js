@@ -12,7 +12,7 @@ var POLY_HALF_OPACITY = 0.6;
 var POLY_GHOST_OPACITY = 0.3;
 var ALPHA = 0.01; // for iteratively calculating target area
 
-var ANIMATION_TIME = 10;
+var ANIMATION_TIME = 1;
 
 var PADDING = 50;
 
@@ -24,7 +24,7 @@ $(function() {
     var canvas = document.getElementById('canvas');
     var two = new Two({
         width: $(canvas).width(),
-        height: $(window).height()
+        height: $(window).height()-500
     }).appendTo(canvas);
 
 
@@ -69,7 +69,19 @@ $(function() {
             url: '/upload',
             dataType: 'json'
         }).done(function (data) {
-            $.each(data, function(i, t) {
+            stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
+            $.each(data['spectrum'], function(i, d) {
+                var height = d['area']/UNIT_WIDTH;
+                var slice = makePoly([stackPt.x, stackPt.y,
+                                        stackPt.x+UNIT_WIDTH, stackPt.y,
+                                        stackPt.x+UNIT_WIDTH, stackPt.y+height,
+                                        stackPt.x, stackPt.y+height]);
+                slice.fill = d['fill'];
+                stackPt.y += height;
+                two.add(slice);
+                two.update();
+            });
+            $.each(data['source-triangles'], function(i, t) {
                 var tri = makePoly([t.a.x, t.a.y, t.b.x, t.b.y, t.c.x, t.c.y]);
                 tri.fill = t.fill;
                 tri = permuteTriVertices(tri);
@@ -77,15 +89,23 @@ $(function() {
                 two.add(tri);
                 two.update();
             });
-            stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
-            two.bind('update', pause(ANIMATION_TIME, constructStack(0))).play();
+            $.each(data['target-triangles'], function(i, t) {
+                var tri = makePoly([t.a.x, t.a.y, t.b.x, t.b.y, t.c.x, t.c.y]);
+                tri.fill = t.fill;
+                tri = permuteTriVertices(tri);
+                trisB.push(tri);
+                two.add(tri);
+                two.update();
+            });
+
+            // two.bind('update', pause(ANIMATION_TIME, constructStack(0))).play();
         });
     }
 
     function reset(e)
     {
         two.width = $(canvas).width(),
-        two.height = $(window).height()
+        two.height = $(window).height()-150
 
         MAX_H = two.height/2;
         MAX_W = two.width/3;
@@ -215,38 +235,6 @@ $(function() {
     }
 
 
-    function calculateArea(a, b)
-    {
-        var kA = toPolyK(a);
-        var kB = toPolyK(b);
-
-        var boxA = PolyK.GetAABB(kA);
-        var boxB = PolyK.GetAABB(kB);
-
-        while (boxA.width > MAX_W || boxA.height > MAX_H)
-        {
-            kA = PolyK.scale(kA, 1-ALPHA, 1-ALPHA);
-            boxA = PolyK.GetAABB(kA);
-        }
-        while (boxA.width < MAX_W && boxA.height < MAX_H)
-        {
-            kA = PolyK.scale(kA, 1+ALPHA, 1+ALPHA);
-            boxA = PolyK.GetAABB(kA);
-        }
-
-        while (boxB.width > MAX_W || boxB.height > MAX_H)
-        {
-            kB = PolyK.scale(kB, 1-ALPHA, 1-ALPHA);
-            boxB = PolyK.GetAABB(kB);
-        }
-        while (boxB.width < MAX_W && boxB.height < MAX_H)
-        {
-            kB = PolyK.scale(kB, 1+ALPHA, 1+ALPHA);
-            boxB = PolyK.GetAABB(kB);
-        }
-
-        return Math.min(PolyK.GetArea(kA), PolyK.GetArea(kB))
-    }
 
     function normalizeRect(p, w, callback)
     {

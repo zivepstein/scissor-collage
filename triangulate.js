@@ -2,13 +2,13 @@ var fs = require('fs');
 var triangulate = require('triangulate-image');
 
 var params = {
-        accuracy: 0.7,
+        accuracy: 1,
         blur: 4,
         fill: true,
         stroke: true,
-        strokeWidth: 0.5,
+        strokeWidth: 0,
         lineJoin: 'miter',
-        vertexCount: 50,
+        vertexCount: 200,
         threshold: 50,
         gradients: false
 };
@@ -27,7 +27,7 @@ function fromBufferToData () {
                         .then ( function ( data ) {
                                             var dataStr = JSON.stringify( data, null, '  ' );
 
-                                            fs.writeFile( __dirname + '/json-out/data.json', dataStr, function ( err ) {
+                                            fs.writeFile( __dirname + '/json-out/' + process.argv[3] + '.json', dataStr, function ( err ) {
                                                                     if ( err ) {
                                                                                                 throw err;
                                                                                             } else {
