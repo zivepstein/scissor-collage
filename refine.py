@@ -6,31 +6,45 @@ from scipy import misc
 import numpy as np
 from werkzeug.utils import secure_filename
 from image_processing.color_cluster import cluster_color
+from image_processing.find_close_hue import find_closest_color
+from apiclient.discovery import build
 from PIL import Image
+import urllib, cStringIO
 
 EPSILON = 10
 NUM_COLORS = 5
 AREA = 50000
 
-def test():
-    source = Image.open("source.jpg")
+def go(name, kw):
+    source = Image.open("uploads/{}.jpg".format(name))
     source_area = source.size[0] * source.size[1]
     alpha = math.sqrt(AREA/source_area)
     source = source.resize((int(alpha*source.size[0]), int(alpha*source.size[1])), Image.BILINEAR)
-    source.save("source.jpg")
+    source.save("uploads/{}.jpg".format(name))
 
-    target = Image.open("target.jpg")
+    service = build('customsearch', 'v1', developerKey='AIzaSyBl3oaBTl3QC0hhkJrjKEV9KuGXne0t1Q4')
+    req = service.cse().list(q=kw,
+                                 searchType='image',
+                                 imgDominantColor=find_closest_color(source),
+                                 imgSize='medium',
+                                 cx='010344681634201659024:28tylyxabkm')
+    response = req.execute()
+    for r in response['items']:
+        url = r['link']
+        file = cStringIO.StringIO(urllib.urlopen(url).read())
+        target = Image.open(file)
+
     target_area = target.size[0] * target.size[1]
     alpha = math.sqrt(AREA/target_area)
     target = target.resize((int(alpha*target.size[0]), int(alpha*target.size[1])), Image.BILINEAR)
-    target.save("target.jpg")
+    target.save("uploads/{}-target.jpg".format(name))
 
-    source = misc.imread("source.jpg")
-    target = misc.imread("target.jpg")
-    os.system('node triangulate.js source.jpg 1')
-    os.system('node triangulate.js target.jpg 2')
-    with open('json-out/1.json') as source_file:
-        with open('json-out/2.json') as target_file:
+    source = misc.imread("uploads/{}.jpg".format(name))
+    target = misc.imread("uploads/{}-target.jpg".format(name))
+    os.system('node triangulate.js uploads/{}.jpg {}-1 '.format(name, name))
+    os.system('node triangulate.js uploads/{}-target.jpg {}-2'.format(name, name))
+    with open('json-out/{}-1.json'.format(name)) as source_file:
+        with open('json-out/{}-2.json'.format(name)) as target_file:
             source_data = json.load(source_file)
             source_clusters = cluster_color(source, NUM_COLORS)
             source_clusters.sort(key=lambda t: colorsys.rgb_to_hsv(*t))
@@ -66,7 +80,7 @@ def test():
                     'target-triangles': target_triangulation
                     }
 
-            with open('json-out/test.json', 'w') as outfile:
+            with open('json-out/{}-out.json'.format(name), 'w') as outfile:
                 json.dump(data, outfile)
 
 
@@ -235,7 +249,3 @@ def split_tri(tri, area):
 
 def angle(a, b, c):
     return math.acos((c**2 - b**2 - a**2)/(-2.0 * a * b))
-
-test()
-
-# sort(data, key=lambda d: colorsys.rgb_to_hsv(*rgb_str_to_tup(d['fill']))[0])

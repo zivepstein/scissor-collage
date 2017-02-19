@@ -31,14 +31,15 @@
        <ul class="nav navbar-nav navbar-right">
 <li>
 <div class = "desc">Using computational geometry, image processing and a dash of magic, <a>Scissor Collage</a> slices the Internet's photos into an image of your choosing.</div>
-  <form class="form-inline">
+  <form action="#" class="form-inline" method="post">
   
   <div class="form-group fileUpload btn btn-primary">
-    <input type="file" class="upload" /> 
+    <input type="file" name="file" class="upload" /> 
   </div> 
    <div class="form-group">
-    <input type="word" class="form-control" id="word" placeholder="Term">
+    <input type="text" class="form-control" id="word" name="kw" placeholder="Term">
   <button type="submit" class="btn btn-default btn-submit">Slice</button>
+   </div>
 </form></li>
        </ul>
       

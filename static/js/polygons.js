@@ -14,11 +14,12 @@ var ALPHA = 0.01; // for iteratively calculating target area
 
 var ANIMATION_TIME = 20;
 var SPEEDUP = 0.7;
-var SLOWDOWN = 1.4;
+var SLOWDOWN = 1;
 
 var PADDING = 50;
 
 $(function() {
+
     var aVertices;
     var bVertices;
 
@@ -62,12 +63,37 @@ $(function() {
     var offset;
 
     reset();
-    renderImage();
+    
+    var name;
+
+        
+    $("form").submit(function() {
+        var formData = new FormData($(this)[0]);
+
+        var url = "/upload/"; // the script where you handle the form input.
+        $.ajax({
+            url: url,
+            type: 'POST',
+            dataType: 'text',
+            data: formData,
+            async: true,
+            cache: false,
+            contentType: false,
+            processData: false
+        }).done(function (n) {
+            name = n;
+            setTimeout(renderImage, 5000);
+        });
+
+
+        return false; // avoid to execute the actual submit of the form.
+    });
 
     function renderImage()
     {
         $.ajax({
-            url: '/upload',
+            type: 'GET',
+            url: '/get/' + name,
             dataType: 'json'
         }).done(function (data) {
             stackPt = new Two.Anchor((two.width-UNIT_WIDTH)/2, PADDING);
