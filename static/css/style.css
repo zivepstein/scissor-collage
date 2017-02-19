@@ -390,3 +390,7 @@ form li {
 .btn-default {
     background-color: #DFDFDF;
 }
+
+.navbar-nav li {
+ line-height: 100px;
+}
