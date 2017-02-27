@@ -19,15 +19,15 @@
 
 
 \author[1]{Ziv Epstein}
-\author[1]{Robin Pollack}
+\author[1]{Robin Pollak}
 \author[1]{Dmitriy Smirnov}
 \affil[1]{Computer Science Department, Pomona College\\
   Claremont,CA\\
-  \{\texttt{ziv.epstein, robin.pollack, dmitriy.smirnov}\}\texttt{@pomona.edu}}
+  \{\texttt{ziv.epstein, robin.pollak, dmitriy.smirnov}\}\texttt{@pomona.edu}}
 
-\authorrunning{ Z.\,G. Epstein, R. Pollack, and D. Smirnov.} %mandatory. First: Use abbreviated first/middle names. Second (only in severe cases): Use first author plus 'et. al.'
+\authorrunning{ Z.\,G. Epstein, R. Pollak, and D. Smirnov.} %mandatory. First: Use abbreviated first/middle names. Second (only in severe cases): Use first author plus 'et. al.'
 
-\Copyright{Ziv G. Epstein, Robin Pollack \& Dmitry Smirnov}%mandatory, please use full first names. LIPIcs license is "CC-BY";  http://creativecommons.org/licenses/by/3.0/
+\Copyright{Ziv G. Epstein, Robin Pollak \& Dmitry Smirnov}%mandatory, please use full first names. LIPIcs license is "CC-BY";  http://creativecommons.org/licenses/by/3.0/
 
 \subjclass{I.3.5 Computational Geometry and Object Modelling -- Geometric Algorithms, languages and systems, K.3.1 Computer Uses in Education -- Computer-assisted instruction}% mandatory: Please choose ACM 1998 classifications from http://www.acm.org/about/class/ccs98-html . E.g., cite as "F.1.1 Models of Computation". 
 \keywords{polygonal congruence, color matching, image transformation, geometry, rigid transformations}% mandatory: Please provide 1-5 keywords
@@ -58,10 +58,14 @@
 
 \section{Introduction}
 
-
-
 \section{Algorithm}
+We begin by accepting an uploaded photo (``target'') and a search term used to retrieve a second photo (``base''). Then, using \cite[Georg Fischer's triangulation algorithm]{https://snorpey.github.io/triangulation/} we split each image into polygons $P_{base}, P_{target}$ comprised of Delaunay triangles. Next we use \cite[k-means]{k-means} to cluster the colors in each photo and select the top $k=5$ most important colors in each photo. The two sets $Colors_{base}, Colors_{target}$ of cardinality $k$  are then assigned a one to one mapping, $\phi$, using weighted bipartite matching. \\
+Now, for both photos, we color each triangle using the \hyperref[sec:algorithm1]{color redistribution algorithm} equal areas for all $k$ colors across all triangles. Given these equally distributed colors we now recolor each triangle from $color_i\in Colors_{base}$ to $color_{\phi(i)}\in Colors_{target}$. \\
+Finally, we use scissors congruence to recreate $P_{target}$ from $P_{base}$. 
 
+\subsection{Color Redistribution Algorithm}
+\label{sec:algorithm1}
+For each triangle we compute its average color and then color it with the closest of the $k$ colors found while clustering the target image. Then we begin to balance the total area of each color, by creating $k$ bins with an area threshold of $T=(Total Area)/k$, where each bin corresponds to a color. Now, for a given bin $B$, if B's total area $Area_B>T$ we consider the smallest triangle $t_{min} \in B$ and check whether it could be removed from $B$ while maintaining $Area_B>T$. If $t_min$ can be removed in this way we recolor $t_min$ to the closest bin that is not yet full. If $t_min$ cannot be removed without $Area_B<T$ we instead consider the largest triangle $t_{max}\in B$. We divide $t_max$ into two smaller triangles by drawing a ray from a vertex such that one of the new triangles $t_max'$ has area $Area_B-T$ and recolor $t_max'$ as described above.
 \section{Implementation}
 
 
